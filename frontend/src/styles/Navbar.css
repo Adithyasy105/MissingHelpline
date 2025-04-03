@@ -1,0 +1,45 @@
+/* Navbar */
+.navbar {
+    background-color: #007bff;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar h2 {
+    color: white;
+    margin: 0;
+}
+
+.navbar div {
+    display: flex;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.navbar a:hover {
+    color: #ffcc00;
+}
+
+/* Special Styles for Login & Register */
+.login-btn, .register-btn {
+    padding: 8px 15px;
+    border-radius: 5px;
+}
+
+.login-btn {
+    background-color: white;
+    color: #007bff;
+}
+
+.register-btn {
+    background-color: #ffcc00;
+    color: black;
+}
