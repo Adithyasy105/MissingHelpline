@@ -16,7 +16,8 @@ export const requestHelp = async (helpData) => {
         });
         return { success: true, data: response.data };
     } catch (error) {
-        return { success: false, error: error.response?.data?.message || "Failed to submit help request." };
+        const errorMessage = error.response?.data?.message || error.message || "Failed to submit help request.";
+        return { success: false, error: errorMessage };
     }
 };
 
@@ -31,6 +32,7 @@ export const getAllHelpRequests = async () => {
         });
         return { success: true, data: response.data };
     } catch (error) {
-        return { success: false, error: "Failed to fetch help requests." };
+        const errorMessage = error.response?.data?.message || error.message || "Failed to fetch help requests.";
+        return { success: false, error: errorMessage };
     }
 };

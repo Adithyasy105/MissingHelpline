@@ -1,21 +1,39 @@
-const FoundPerson = require('../models/FoundPerson'); 
+const FoundPerson = require("../models/FoundPerson");
+const Report = require("../models/Report"); // Ensure Report model exists
 
+// ✅ Create Found Person Report
 exports.createFoundPerson = async (req, res) => {
   try {
-    const { reportId, place, message, contactPhone } = req.body; // ✅ Changed phoneNumber to contactPhone
-    const photo = req.file ? req.file.path : null;
+    const { reportId, place, message, contactPhone } = req.body;
+    const photo = req.file?.path || null; // Safe optional chaining
 
+    // Validate required fields
+    if (!place || !contactPhone) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // ✅ Check if Report ID exists, but only if reportId is not null or undefined
+    let validReport = null;
+    if (reportId) {
+      validReport = await Report.findByPk(reportId);
+      if (!validReport) {
+        return res.status(404).json({ message: "Report ID does not exist" });
+      }
+    }
+
+    // ✅ If no reportId is provided, we handle it by setting it to null or skipping validation
     const foundPerson = await FoundPerson.create({
-      reportId,
+      reportId: validReport ? reportId : null, // Only set reportId if it's valid
       place,
       message,
-      contactPhone, // ✅ Updated field name
+      contactPhone,
       photo,
     });
 
-    res.status(201).json(foundPerson);
+    res.status(201).json({ message: "Found Person reported successfully", foundPerson });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error creating Found Person report:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -23,9 +41,10 @@ exports.createFoundPerson = async (req, res) => {
 exports.getAllFoundPersons = async (req, res) => {
   try {
     const foundPersons = await FoundPerson.findAll();
-    res.json(foundPersons);
+    res.status(200).json(foundPersons);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching found persons:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -34,35 +53,36 @@ exports.getFoundPersonById = async (req, res) => {
   try {
     const foundPerson = await FoundPerson.findByPk(req.params.id);
     if (!foundPerson) {
-      return res.status(404).json({ message: 'Found Person not found' });
+      return res.status(404).json({ message: "Found Person not found" });
     }
-    res.json(foundPerson);
+    res.status(200).json(foundPerson);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching Found Person:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
 // ✅ Update Found Person
 exports.updateFoundPerson = async (req, res) => {
   try {
-    const { reportId, place, message, contactPhone } = req.body; // ✅ Updated here as well
-    const photo = req.file ? req.file.path : null;
-
     const foundPerson = await FoundPerson.findByPk(req.params.id);
     if (!foundPerson) {
-      return res.status(404).json({ message: 'Found Person not found' });
+      return res.status(404).json({ message: "Found Person not found" });
     }
 
-    foundPerson.reportId = reportId || foundPerson.reportId;
-    foundPerson.place = place || foundPerson.place;
-    foundPerson.message = message || foundPerson.message;
-    foundPerson.contactPhone = contactPhone || foundPerson.contactPhone; // ✅ Updated here
-    foundPerson.photo = photo || foundPerson.photo;
+    // ✅ Use update() instead of Object.assign()
+    await foundPerson.update({
+      reportId: req.body.reportId || foundPerson.reportId,
+      place: req.body.place || foundPerson.place,
+      message: req.body.message || foundPerson.message,
+      contactPhone: req.body.contactPhone || foundPerson.contactPhone,
+      photo: req.file?.path || foundPerson.photo,
+    });
 
-    await foundPerson.save();
-    res.json(foundPerson);
+    res.status(200).json({ message: "Found Person updated successfully", foundPerson });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error updating Found Person:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -71,12 +91,13 @@ exports.deleteFoundPerson = async (req, res) => {
   try {
     const foundPerson = await FoundPerson.findByPk(req.params.id);
     if (!foundPerson) {
-      return res.status(404).json({ message: 'Found Person not found' });
+      return res.status(404).json({ message: "Found Person not found" });
     }
 
     await foundPerson.destroy();
-    res.json({ message: 'Found Person deleted successfully' });
+    res.status(200).json({ message: "Found Person deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error deleting Found Person:", error);
+    res.status(500).json({ message: "Server Error", error: error.message });
   }
 };

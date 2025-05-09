@@ -1,207 +1,267 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const AdminAction = require('../models/AdminAction');
-const MissingReport = require('../models/Report');
 const HelpRequest = require('../models/HelpRequest');
+const Report = require('../models/Report');
 const FoundPerson = require('../models/FoundPerson');
 const User = require('../models/User');
 
-// Admin Login
-exports.adminLogin = async (req, res) => {
+//
+// ====================== HELP REQUESTS ======================
+//
+
+// ✅ Get All Help Requests (Admin)
+const getAllHelpRequestsAdmin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const helpRequests = await HelpRequest.findAll({
+      include: [{ model: User, attributes: ['name', 'email'] }],
+    });
+    res.status(200).json(helpRequests);
+  } catch (error) {
+    console.error("Error fetching help requests:", error.message);
+    res.status(500).json({ message: "Error fetching help requests" });
+  }
+};
 
-    // Find the admin by email
-    const admin = await User.findOne({ where: { email, role: 'admin' } });
+// ✅ Get Help Request by ID (Admin)
+const getHelpRequestByIdAdmin = async (req, res) => {
+  try {
+    const helpRequest = await HelpRequest.findByPk(req.params.id, {
+      include: [{ model: User, attributes: ['name', 'email'] }],
+    });
 
-    if (!admin) {
-      return res.status(404).json({ message: 'Admin not found or unauthorized' });
+    if (!helpRequest) {
+      return res.status(404).json({ message: "Help request not found" });
     }
 
-    // Check password
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Generate token
-    const token = jwt.sign(
-      { id: admin.id, email: admin.email, role: admin.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-
-    res.status(200).json({ message: 'Admin logged in successfully', token });
+    res.status(200).json(helpRequest);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching help request:", error.message);
+    res.status(500).json({ message: "Error fetching help request" });
   }
 };
 
-// Fetch all users (Admin access required)
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.findAll();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Promote a user to admin
-exports.promoteUserToAdmin = async (req, res) => {
-  try {
-    const adminId = req.user.id; // Admin performing the action
-    const user = await User.findByPk(req.params.id);
-    
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    if (user.role === 'admin') return res.status(400).json({ message: 'User is already an admin' });
-
-    user.role = 'admin';
-    await user.save();
-
-    // Log admin action
-    await AdminAction.create({
-      userId: adminId,
-      actionType: 'Promote to Admin',
-      targetId: user.id,
-      details: `Admin promoted user ${user.id} to admin`
-    });
-
-    res.json({ message: 'User promoted to admin', user });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Delete a user
-exports.deleteUser = async (req, res) => {
-  try {
-    const adminId = req.user.id; // Admin performing the action
-    const user = await User.findByPk(req.params.id);
-
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    if (user.id === adminId) return res.status(403).json({ message: 'You cannot delete yourself' });
-
-    await user.destroy();
-
-    // Log admin action
-    await AdminAction.create({
-      userId: adminId,
-      actionType: 'Delete User',
-      targetId: user.id,
-      details: `Admin deleted user ${user.id}`
-    });
-
-    res.json({ message: 'User deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// Fetch all admin actions
-exports.getAllAdminActions = async (req, res) => {
-  try {
-    const adminActions = await AdminAction.findAll();
-    res.json(adminActions);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-// ✅ Get all missing person reports
-exports.getAllMissingPersonsReports = async (req, res) => {
-  try {
-    const reports = await MissingReport.findAll();
-    res.json(reports);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ✅ Approve or reject a missing person report
-exports.approveOrRejectMissingReport = async (req, res) => {
-  try {
-    const { status } = req.body; // "approved" or "rejected"
-    const report = await MissingReport.findByPk(req.params.id);
-
-    if (!report) return res.status(404).json({ message: 'Report not found' });
-
-    report.status = status;
-    await report.save();
-
-    await AdminAction.create({
-      userId: req.user.id,
-      actionType: 'Update Report Status',
-      targetId: report.id,
-      details: `Admin changed report ${report.id} status to ${status}`,
-    });
-
-    res.json({ message: `Report status updated to ${status}` });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ✅ Delete an inappropriate missing person report
-exports.deleteReport = async (req, res) => {
-  try {
-    const report = await MissingReport.findByPk(req.params.id);
-
-    if (!report) return res.status(404).json({ message: 'Report not found' });
-
-    await report.destroy();
-
-    await AdminAction.create({
-      userId: req.user.id,
-      actionType: 'Delete Report',
-      targetId: report.id,
-      details: `Admin deleted report ${report.id}`,
-    });
-
-    res.json({ message: 'Report deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ✅ Get all help requests
-exports.getAllHelpRequests = async (req, res) => {
-  try {
-    const helpRequests = await HelpRequest.findAll();
-    res.json(helpRequests);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-// ✅ Resolve a help request
-exports.resolveHelpRequest = async (req, res) => {
+// ✅ Update Help Request by Admin
+const updateHelpRequestAdmin = async (req, res) => {
   try {
     const helpRequest = await HelpRequest.findByPk(req.params.id);
 
-    if (!helpRequest) return res.status(404).json({ message: 'Help request not found' });
+    if (!helpRequest) {
+      return res.status(404).json({ message: "Help request not found" });
+    }
 
-    helpRequest.status = 'resolved';
+    helpRequest.location = req.body.location || helpRequest.location;
+    helpRequest.message = req.body.message || helpRequest.message;
+    helpRequest.status = req.body.status || helpRequest.status;
+
     await helpRequest.save();
 
-    await AdminAction.create({
-      userId: req.user.id,
-      actionType: 'Resolve Help Request',
-      targetId: helpRequest.id,
-      details: `Admin resolved help request ${helpRequest.id}`,
+    res.status(200).json({
+      message: "Help request updated successfully by admin",
+      helpRequest,
     });
-
-    res.json({ message: 'Help request marked as resolved' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error updating help request:", error.message);
+    res.status(500).json({ message: "Error updating help request" });
   }
 };
 
-// ✅ Get all found person reports
-exports.getAllFoundPersonsReports = async (req, res) => {
+// ✅ Delete Help Request by Admin
+const deleteHelpRequestAdmin = async (req, res) => {
   try {
-    const foundPersons = await FoundPerson.findAll();
-    res.json(foundPersons);
+    const helpRequest = await HelpRequest.findByPk(req.params.id);
+
+    if (!helpRequest) {
+      return res.status(404).json({ message: "Help request not found" });
+    }
+
+    await helpRequest.destroy();
+    res.status(200).json({ message: "Help request deleted successfully by admin" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error deleting help request:", error.message);
+    res.status(500).json({ message: "Error deleting help request" });
   }
+};
+
+//
+// ====================== MISSING PERSON REPORTS ======================
+//
+
+// ✅ Get All Reports (Admin)
+const getAllReportsAdmin = async (req, res) => {
+  try {
+    const reports = await Report.findAll({
+      include: [{ model: User, attributes: ['name', 'email'] }],
+    });
+    res.status(200).json(reports);
+  } catch (error) {
+    console.error("Error fetching reports:", error.message);
+    res.status(500).json({ message: "Error fetching reports" });
+  }
+};
+
+// ✅ Get Report by ID (Admin)
+const getReportByIdAdmin = async (req, res) => {
+  try {
+    const report = await Report.findByPk(req.params.id, {
+      include: [{ model: User, attributes: ['name', 'email'] }],
+    });
+
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    res.status(200).json(report);
+  } catch (error) {
+    console.error("Error fetching report:", error.message);
+    res.status(500).json({ message: "Error fetching report" });
+  }
+};
+
+// ✅ Update Report (Admin)
+const updateReportAdmin = async (req, res) => {
+  try {
+    const report = await Report.findByPk(req.params.id);
+
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    const { personName, lastSeenLocation, age, gender, contactPhone, status } = req.body;
+
+    report.personName = personName || report.personName;
+    report.lastSeenLocation = lastSeenLocation || report.lastSeenLocation;
+    report.age = age || report.age;
+    report.gender = gender || report.gender;
+    report.contactPhone = contactPhone || report.contactPhone;
+    report.status = status || report.status;
+
+    await report.save();
+
+    res.status(200).json({
+      message: "Report updated successfully by admin",
+      report,
+    });
+  } catch (error) {
+    console.error("Error updating report:", error.message);
+    res.status(500).json({ message: "Error updating report" });
+  }
+};
+
+// ✅ Delete Report (Admin)
+const deleteReportAdmin = async (req, res) => {
+  try {
+    const report = await Report.findByPk(req.params.id);
+
+    if (!report) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    await report.destroy();
+    res.status(200).json({ message: "Report deleted successfully by admin" });
+  } catch (error) {
+    console.error("Error deleting report:", error.message);
+    res.status(500).json({ message: "Error deleting report" });
+  }
+};
+
+//
+// ====================== FOUND PERSON REPORTS ======================
+//
+
+// ✅ Get All Found Persons (Admin)
+const getAllFoundPersonsAdmin = async (req, res) => {
+  try {
+    const foundPersons = await FoundPerson.findAll({
+      include: [{ model: User, attributes: ['name', 'email'] }],
+    });
+    res.status(200).json(foundPersons);
+  } catch (error) {
+    console.error("Error fetching found persons:", error.message);
+    res.status(500).json({ message: "Error fetching found persons" });
+  }
+};
+
+// ✅ Get Found Person by ID (Admin)
+const getFoundPersonByIdAdmin = async (req, res) => {
+  try {
+    const foundPerson = await FoundPerson.findByPk(req.params.id, {
+      include: [{ model: User, attributes: ['name', 'email'] }],
+    });
+
+    if (!foundPerson) {
+      return res.status(404).json({ message: "Found person not found" });
+    }
+
+    res.status(200).json(foundPerson);
+  } catch (error) {
+    console.error("Error fetching found person:", error.message);
+    res.status(500).json({ message: "Error fetching found person" });
+  }
+};
+
+// ✅ Update Found Person (Admin)
+const updateFoundPersonAdmin = async (req, res) => {
+  try {
+    const foundPerson = await FoundPerson.findByPk(req.params.id);
+
+    if (!foundPerson) {
+      return res.status(404).json({ message: "Found person not found" });
+    }
+
+    const { place, message, contactPhone, status } = req.body;
+
+    foundPerson.place = place || foundPerson.place;
+    foundPerson.message = message || foundPerson.message;
+    foundPerson.contactPhone = contactPhone || foundPerson.contactPhone;
+    foundPerson.status = status || foundPerson.status;
+
+    await foundPerson.save();
+
+    res.status(200).json({
+      message: "Found person updated successfully by admin",
+      foundPerson,
+    });
+  } catch (error) {
+    console.error("Error updating found person:", error.message);
+    res.status(500).json({ message: "Error updating found person" });
+  }
+};
+
+// ✅ Delete Found Person (Admin)
+const deleteFoundPersonAdmin = async (req, res) => {
+  try {
+    const foundPerson = await FoundPerson.findByPk(req.params.id);
+
+    if (!foundPerson) {
+      return res.status(404).json({ message: "Found person not found" });
+    }
+
+    await foundPerson.destroy();
+    res.status(200).json({ message: "Found person deleted successfully by admin" });
+  } catch (error) {
+    console.error("Error deleting found person:", error.message);
+    res.status(500).json({ message: "Error deleting found person" });
+  }
+};
+
+//
+// ====================== EXPORT ======================
+//
+
+module.exports = {
+  // Help Requests
+  getAllHelpRequestsAdmin,
+  getHelpRequestByIdAdmin,
+  updateHelpRequestAdmin,
+  deleteHelpRequestAdmin,
+
+  // Reports
+  getAllReportsAdmin,
+  getReportByIdAdmin,
+  updateReportAdmin,
+  deleteReportAdmin,
+
+  // Found Persons
+  getAllFoundPersonsAdmin,
+  getFoundPersonByIdAdmin,
+  updateFoundPersonAdmin,
+  deleteFoundPersonAdmin,
 };

@@ -1,45 +1,16 @@
-/* Navbar */
-.navbar {
-    background-color: #007bff;
-    padding: 10px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.navbar h2 {
-    color: white;
-    margin: 0;
-}
-
-.navbar div {
-    display: flex;
-}
-
-.navbar a {
-    color: white;
-    text-decoration: none;
-    margin: 0 15px;
+.navbar-brand {
     font-weight: bold;
-    transition: color 0.3s;
+    font-size: 1.5rem;
+    color: #ffffff !important;
 }
 
-.navbar a:hover {
-    color: #ffcc00;
+.nav-link {
+    margin-left: 15px;
+    font-size: 1rem;
+    color: #ffffff !important;
+    transition: color 0.2s ease;
 }
 
-/* Special Styles for Login & Register */
-.login-btn, .register-btn {
-    padding: 8px 15px;
-    border-radius: 5px;
-}
-
-.login-btn {
-    background-color: white;
-    color: #007bff;
-}
-
-.register-btn {
-    background-color: #ffcc00;
-    color: black;
+.nav-link:hover {
+    color: #ffc107 !important;
 }

@@ -1,35 +1,25 @@
-const { DataTypes } = require('sequelize'); 
+const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const User = require('./User');
 
 const HelpRequest = sequelize.define('HelpRequest', {
-  id: { 
-    type: DataTypes.INTEGER, 
-    autoIncrement: true, 
-    primaryKey: true 
-  },
-  userId: { 
-    type: DataTypes.INTEGER, 
-    allowNull: true,  // Matches `YES` in `DESC helprequests`
-    references: { model: User, key: 'id' } 
-  },
-  location: {  
-    type: DataTypes.STRING, 
-    allowNull: false // Ensures it's required
-  },
-  message: {  
-    type: DataTypes.TEXT, 
-    allowNull: false // Ensures it's required
-  },
-  status: { 
-    type: DataTypes.STRING, 
-    allowNull: false,  
-    defaultValue: 'pending'  // Default matches the database case
-  }
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    userId: { 
+        type: DataTypes.INTEGER, 
+        allowNull: false, 
+        references: { model: User, key: 'id' }
+    },
+    location: { type: DataTypes.STRING, allowNull: false },
+    message: { type: DataTypes.TEXT, allowNull: false },  // Changed 'reason' to 'message'
+    status: { 
+        type: DataTypes.ENUM('pending', 'resolved'), 
+        allowNull: false, 
+        defaultValue: 'pending' 
+    }
 }, {
-  timestamps: true // Ensures `createdAt` & `updatedAt` are managed
+    timestamps: true
 });
 
-HelpRequest.belongsTo(User, { foreignKey: 'userId' });
+HelpRequest.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
 
 module.exports = HelpRequest;

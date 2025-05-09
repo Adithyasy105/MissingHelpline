@@ -1,62 +1,85 @@
-/* Home.css */
-
-/* Apply background to the whole page */
 body {
-    background-image: url("../assets/background.jpg"); /* Change path if needed */
-    /* background-image: url("https://source.unsplash.com/1600x900/?nature,sky"); */ /* Online image */
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #f8f9fa;
+  margin: 0;
+  padding: 0;
 }
 
-/* Overlay effect for better readability */
+.page-transition {
+  animation: fadeSlideUp 0.8s ease-in-out;
+}
+
+@keyframes fadeSlideUp {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
 .home-container {
-    text-align: center;
-    padding: 40px 20px;
-    background: rgba(109, 18, 18, 0.8); /* Semi-transparent white */
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(5px);
-    max-width: 90%;
-    margin: auto;
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 30px auto;
 }
 
-/* Stats Section */
-.home-stats {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 30px;
-    flex-wrap: wrap;
+.card-img-top {
+  height: 250px;
+  object-fit: cover;
+  border-radius: 5px;
 }
 
-/* Individual Stat Card */
 .stat-card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    width: 220px;
-    transition: transform 0.3s ease-in-out;
+  text-align: center;
+  padding: 15px;
+  background-color:rgb(198, 162, 16);
+  color: #fff;
+  border-radius: 8px;
+  margin: 10px;
 }
 
 .stat-card:hover {
-    transform: scale(1.05);
+  background-color: #0b5ed7;
 }
 
-.stat-card h2 {
-    color: #007bff;
-    margin: 10px 0;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
-    .home-stats {
-        flex-direction: column;
-        align-items: center;
-    }
+  .stat-card {
+      margin: 5px;
+      padding: 10px;
+  }
+
+  .card-img-top {
+      height: 180px;
+  }
+}
+
+@media (max-width: 576px) {
+  .home-container {
+      padding: 20px;
+  }
+
+  .card-img-top {
+      height: 150px;
+  }
+}
+
+.card-body h5 {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.card-body p {
+  font-size: 0.9rem;
+}
+
+.modal-body img {
+  max-height: 300px;
+  object-fit: cover;
+  width: 100%;
+  margin-bottom: 15px;
 }

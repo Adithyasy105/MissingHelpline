@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { createReport } from "../api/reportAPI";
+import "../styles/ReportMissing.css";
 
 const ReportMissing = () => {
   const [formData, setFormData] = useState({
@@ -24,7 +25,7 @@ const ReportMissing = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("authToken"); // Get token from storage
+    const token = localStorage.getItem("authToken");
     if (!token) {
       setMessage({ type: "danger", text: "Please log in to report." });
       return;
@@ -38,6 +39,7 @@ const ReportMissing = () => {
     const result = await createReport(form, token);
     if (result.success) {
       setMessage({ type: "success", text: "Report submitted successfully!" });
+      // Reset all fields including file input
       setFormData({
         personName: "",
         age: "",
@@ -46,25 +48,27 @@ const ReportMissing = () => {
         contactPhone: "",
         photo: null,
       });
+      // Reset file input manually
+      document.getElementById("photoInput").value = "";
     } else {
       setMessage({ type: "danger", text: result.error });
     }
   };
 
   return (
-    <div className="container mt-4">
-      <h2 className="text-center mb-4">Report a Missing Person</h2>
+    <div className="report-container">
+      <h2>Report a Missing Person</h2>
 
       {message.text && (
         <div className={`alert alert-${message.type}`}>{message.text}</div>
       )}
 
-      <form onSubmit={handleSubmit} className="p-4 border rounded shadow-lg bg-light">
-        <div className="mb-3">
-          <label className="form-label">Full Name</label>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="personName">Full Name</label>
           <input
             type="text"
-            className="form-control"
+            id="personName"
             name="personName"
             value={formData.personName}
             onChange={handleChange}
@@ -73,42 +77,40 @@ const ReportMissing = () => {
           />
         </div>
 
-        <div className="row">
-          <div className="col-md-6 mb-3">
-            <label className="form-label">Age</label>
-            <input
-              type="number"
-              className="form-control"
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              required
-              placeholder="Enter age"
-            />
-          </div>
-
-          <div className="col-md-6 mb-3">
-            <label className="form-label">Gender</label>
-            <select
-              className="form-control"
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
+        <div className="form-group">
+          <label htmlFor="age">Age</label>
+          <input
+            type="number"
+            id="age"
+            name="age"
+            value={formData.age}
+            onChange={handleChange}
+            required
+            placeholder="Enter age"
+          />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Last Seen Location</label>
+        <div className="form-group">
+          <label htmlFor="gender">Gender</label>
+          <select
+            id="gender"
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="lastSeenLocation">Last Seen Location</label>
           <input
             type="text"
-            className="form-control"
+            id="lastSeenLocation"
             name="lastSeenLocation"
             value={formData.lastSeenLocation}
             onChange={handleChange}
@@ -117,11 +119,11 @@ const ReportMissing = () => {
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Contact Phone</label>
+        <div className="form-group">
+          <label htmlFor="contactPhone">Contact Phone</label>
           <input
             type="text"
-            className="form-control"
+            id="contactPhone"
             name="contactPhone"
             value={formData.contactPhone}
             onChange={handleChange}
@@ -130,17 +132,18 @@ const ReportMissing = () => {
           />
         </div>
 
-        <div className="mb-3">
-          <label className="form-label">Upload Photo</label>
+        <div className="form-group">
+          <label htmlFor="photoInput">Upload Photo</label>
           <input
             type="file"
-            className="form-control"
+            id="photoInput"
             onChange={handleFileChange}
+            accept="image/*"
             required
           />
         </div>
 
-        <button type="submit" className="btn btn-primary w-100">
+        <button type="submit" className="btn-submit">
           Submit Report
         </button>
       </form>

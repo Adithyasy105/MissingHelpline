@@ -1,0 +1,49 @@
+/* Footer Styling */
+.footer {
+    background-color: rgb(6, 114, 222);
+    color: white;
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Footer Text Styling */
+.footer p {
+    margin: 5px 0;
+}
+
+/* Footer Links */
+.footer a {
+    color: white;
+    text-decoration: none;
+    margin: 0 5px;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: #f1c40f;
+}
+
+/* Social Media Links */
+.footer p a {
+    font-size: 1.1em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .footer {
+        padding: 15px;
+        text-align: center;
+    }
+
+    .footer p {
+        font-size: 0.9em;
+    }
+
+    .footer a {
+        display: block;
+        margin: 5px 0;
+    }
+}

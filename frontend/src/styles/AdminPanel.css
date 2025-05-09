@@ -1,0 +1,96 @@
+/* Admin Panel Styling */
+.admin-panel {
+    max-width: 1100px;
+    margin: 50px auto;
+    padding: 30px 40px;
+    background: #f9f9f9;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.6s ease-in-out;
+  }
+  
+  .admin-panel h2 {
+    text-align: center;
+    color: #007bff;
+    font-weight: bold;
+    margin-bottom: 40px;
+    font-size: 2rem;
+  }
+  
+  .admin-section {
+    margin-bottom: 40px;
+  }
+  
+  .admin-section h3 {
+    font-size: 1.6rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .admin-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .admin-item {
+    background: #fff;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .admin-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  }
+  
+  .admin-item h4 {
+    color:rgb(0, 195, 255);
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+  }
+  
+  .admin-item button {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    font-size: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .admin-item button:hover {
+    background-color: #c82333;
+  }
+  
+  /* Responsive for smaller screens */
+  @media (max-width: 768px) {
+    .admin-panel {
+      padding: 20px;
+    }
+  
+    .admin-section h3 {
+      font-size: 1.4rem;
+    }
+  
+    .admin-item {
+      padding: 12px;
+    }
+  }
+  
+  /* Smooth fadeIn */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

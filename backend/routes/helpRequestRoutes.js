@@ -1,13 +1,22 @@
-// routes/helpRequestRoutes.js
-const express = require('express');
-const helpRequestController = require('../controllers/helpRequestController');
-const authMiddleware = require('../middleware/authMiddleware');
+const express = require("express");
+const helpRequestController = require("../controllers/helpRequestController");
+const { authenticateUser, authenticateAdmin } = require("../middleware/authMiddleware");
+
 const router = express.Router();
-// Help Request Routes
-router.post('/create', authMiddleware.authenticateUser, helpRequestController.createHelpRequest);
-router.get('/all', helpRequestController.getAllHelpRequests);
-router.get('/:id', helpRequestController.getHelpRequestById);
-router.put('/:id', authMiddleware.authenticateUser, helpRequestController.updateHelpRequest);
-router.delete('/:id', authMiddleware.authenticateUser, helpRequestController.deleteHelpRequest);
+
+// ✅ Create a Help Request (Only Authenticated Users)
+router.post("/create", authenticateUser, helpRequestController.createHelpRequest);
+
+// ✅ Get All Help Requests (Public Access)
+router.get("/all", helpRequestController.getAllHelpRequests);
+
+// ✅ Get a Single Help Request by ID (Public Access)
+router.get("/:id", helpRequestController.getHelpRequestById);
+
+// ✅ Update a Help Request (Only Creator or Admin)
+router.put("/:id", authenticateUser, helpRequestController.updateHelpRequest);
+
+// ✅ Delete a Help Request (Only Creator or Admin)
+router.delete("/:id", authenticateUser, helpRequestController.deleteHelpRequest);
 
 module.exports = router;

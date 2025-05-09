@@ -1,62 +1,118 @@
 import React, { useState } from "react";
 import { requestHelp } from "../api/helpAPI";
-import "../styles/HelpRequest.css"; // Import styles
+import "../styles/HelpRequest.css";
 
 const HelpRequest = () => {
-    const [location, setLocation] = useState("");
-    const [message, setMessage] = useState("");
-    const [responseMessage, setResponseMessage] = useState(null);
+  const [location, setLocation] = useState("");
+  const [reason, setReason] = useState(""); // Changed 'message' to 'reason'
+  const [responseMessage, setResponseMessage] = useState(null);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        const helpData = { location, message };
-        const response = await requestHelp(helpData);
+    const helpData = { location, reason }; // Use `reason` instead of `message`
+    const response = await requestHelp(helpData);
 
-        if (response.success) {
-            setResponseMessage({ type: "success", text: "Help request submitted successfully!" });
-            setLocation("");
-            setMessage("");
-        } else {
-            setResponseMessage({ type: "danger", text: response.error });
+    if (response.success) {
+      setResponseMessage({
+        type: "success",
+        text: "Help request submitted successfully!",
+      });
+      setLocation("");
+      setReason(""); // Clear `reason` after successful submission
+    } else {
+      setResponseMessage({ type: "danger", text: response.error });
+    }
+  };
+
+  const handleAutoFillLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+            );
+            const data = await response.json();
+
+            if (data && data.display_name) {
+              setLocation(data.display_name); // Real address like 'Indiranagar, Bengaluru, Karnataka...'
+            } else {
+              setLocation(`Lat: ${latitude.toFixed(5)}, Lng: ${longitude.toFixed(5)}`);
+            }
+          } catch (error) {
+            setResponseMessage({
+              type: "danger",
+              text: "Unable to get address. Please enter it manually.",
+            });
+          }
+        },
+        (error) => {
+          setResponseMessage({
+            type: "danger",
+            text: "Location access denied or unavailable.",
+          });
         }
-    };
+      );
+    } else {
+      setResponseMessage({
+        type: "danger",
+        text: "Geolocation is not supported by your browser.",
+      });
+    }
+  };
 
-    return (
-        <div className="container mt-4">
-            <h2 className="text-center">Request Emergency Help</h2>
+  return (
+    <div className="help-page-wrapper">
+      <div className="help-request-container">
+        <h2>Request Emergency Help</h2>
 
-            {responseMessage && (
-                <div className={`alert alert-${responseMessage.type}`} role="alert">
-                    {responseMessage.text}
-                </div>
-            )}
+        {responseMessage && (
+          <div className={`alert alert-${responseMessage.type}`} role="alert">
+            {responseMessage.text}
+          </div>
+        )}
 
-            <form onSubmit={handleSubmit} className="help-form">
-                <div className="mb-3">
-                    <label className="form-label">Location</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Message</label>
-                    <textarea
-                        className="form-control"
-                        rows="3"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        required
-                    />
-                </div>
-                <button type="submit" className="btn btn-primary w-100">Submit Help Request</button>
-            </form>
-        </div>
-    );
+        <form onSubmit={handleSubmit}>
+          <div className="form-group location-group">
+            <label>Location</label>
+            <input
+              type="text"
+              className="form-control"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              required
+              placeholder="Enter your location"
+            />
+            <button
+              type="button"
+              className="autofill-btn"
+              onClick={handleAutoFillLocation}
+            >
+              Use My Location
+            </button>
+          </div>
+
+          <div className="form-group">
+            <label>Reason</label> {/* Changed from Message to Reason */}
+            <textarea
+              className="form-control"
+              rows="3"
+              value={reason} // Bind to `reason` instead of `message`
+              onChange={(e) => setReason(e.target.value)} // Update state for reason
+              required
+              placeholder="Describe the emergency reason"
+            />
+          </div>
+          <button type="submit" className="btn-submit">
+            Submit Help Request
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default HelpRequest;
