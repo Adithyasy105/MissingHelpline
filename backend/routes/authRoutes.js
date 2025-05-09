@@ -1,4 +1,7 @@
 const express = require("express");
+const authController = require('../controllers/authController'); 
+const { getAllUsers, register, login } = require('../controllers/authController');
+const { authenticateUser, authenticateAdmin } = require("../middleware/authMiddleware");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
@@ -6,6 +9,10 @@ require("dotenv").config();
 
 const router = express.Router();
 
+router.get("/all", authController.getAllUsers);
+
+// Correctly defining the DELETE route
+router.delete("/:id", authenticateUser, authController.deleteUser);
 // ✅ User Registration (Only Normal Users)
 router.post("/register", async (req, res) => {
   try {
