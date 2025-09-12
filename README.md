@@ -139,62 +139,51 @@ cd frontend
 npm start
 The frontend will typically run on http://localhost:3000 and backend on something like http://localhost:5000 (based on your config).
 
-📂 Project Structure
-Here’s a typical layout (adjust to your actual structure):
-
-bash
-Copy code
 MissingHelpline/
 ├── backend/
-│   ├── controllers/
-│   ├── models/
-│   ├── routes/
-│   ├── middleware/
-│   ├── config/
-│   ├── migrations/        # if using Sequelize migrations
-│   ├── seeders/           # if you seed initial data
-│   ├── app.js or server.js
-│   └── .env
+│   ├── controllers/        # Request handling logic
+│   ├── models/             # Sequelize models
+│   ├── routes/             # Express routes
+│   ├── middleware/         # Authentication, validation, etc.
+│   ├── config/             # Database & environment configuration
+│   ├── migrations/         # Sequelize migrations
+│   ├── seeders/            # Seed data for testing/demo
+│   ├── app.js / server.js  # Entry point for backend
+│   └── .env                # Environment variables
 └── frontend/
     ├── src/
-    │   ├── components/
-    │   ├── pages/
-    │   ├── services/       # API calls
-    │   ├── assets/
-    │   ├── App.js
-    │   └── index.js
-    ├── public/
-    └── package.json
+    │   ├── components/     # Reusable UI components
+    │   ├── pages/          # Page-level components (routes)
+    │   ├── services/       # API calls & data handling
+    │   ├── assets/         # Images, icons, static files
+    │   ├── App.js          # Main React component
+    │   └── index.js        # React entry point
+    ├── public/             # Static assets
+    └── package.json        # Frontend dependencies & scripts
+
 💡 Usage
-Register / login as a user
 
-Fill the “Report Missing Person” form with required information
-
-Browse list of missing persons, use filters/search to narrow down
-
-Community members can submit leads or comments (if this is part of your design)
-
-Admin can moderate / verify / delete reports
+Register / Login as a user
+Report a Missing Person by filling out the required form (details + photo)
+Browse & Search through reported cases using filters
+Community Members can contribute by submitting leads, comments, or sightings
+Admin Panel (if enabled) allows moderators to verify, edit, or delete reports
 
 🤝 Contributing
-Contributions are welcome! Here's how you can help:
-
+We welcome contributions from the community! To contribute:
 Fork this repository
+Create a new branch:
+git checkout -b feature/YourFeature
+Commit your changes:
+git commit -m "Add: your descriptive message"
+Push to your branch:
+git push origin feature/YourFeature
+Open a Pull Request for review
 
-Create your feature branch (git checkout -b feature/YourFeature)
-
-Commit your changes (git commit -m "Add some feature")
-
-Push to the branch (git push origin feature/YourFeature)
-
-Open a Pull Request
-
-Please follow code style, write meaningful commit messages, and ensure your changes are tested.
-
-📄 License
-Specify the license under which the project is released, e.g.:
-
-This project is licensed under the MIT License – see the LICENSE file for details.
+✅ Please ensure:
+Your code follows consistent style & structure
+You write meaningful commit messages
+All changes are tested before submitting
 
 📞 Contact
 If you have any questions or suggestions, feel free to reach out:
