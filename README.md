@@ -139,27 +139,6 @@ cd frontend
 npm start
 The frontend will typically run on http://localhost:3000 and backend on something like http://localhost:5000 (based on your config).
 
-MissingHelpline/
-├── backend/
-│   ├── controllers/        # Request handling logic
-│   ├── models/             # Sequelize models
-│   ├── routes/             # Express routes
-│   ├── middleware/         # Authentication, validation, etc.
-│   ├── config/             # Database & environment configuration
-│   ├── migrations/         # Sequelize migrations
-│   ├── seeders/            # Seed data for testing/demo
-│   ├── app.js / server.js  # Entry point for backend
-│   └── .env                # Environment variables
-└── frontend/
-    ├── src/
-    │   ├── components/     # Reusable UI components
-    │   ├── pages/          # Page-level components (routes)
-    │   ├── services/       # API calls & data handling
-    │   ├── assets/         # Images, icons, static files
-    │   ├── App.js          # Main React component
-    │   └── index.js        # React entry point
-    ├── public/             # Static assets
-    └── package.json        # Frontend dependencies & scripts
 
 💡 Usage
 
